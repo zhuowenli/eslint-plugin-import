@@ -679,9 +679,9 @@ ruleTester.run('order', rule, {
     test({
       code: `
         import a from "foo";
+        import b from "foo-bar";
         import c from "foo/bar";
         import d from "foo/barfoo";
-        import b from "foo-bar";
       `,
       options: [{ alphabetize: { order: 'asc' } }],
     }),
@@ -689,18 +689,18 @@ ruleTester.run('order', rule, {
     test({
       code: `
         import a from "foo";
+        import b from "foo-bar";
         import c from "foo/foobar/bar";
         import d from "foo/foobar/barfoo";
-        import b from "foo-bar";
       `,
       options: [{ alphabetize: { order: 'asc' } }],
     }),
     // Option alphabetize: {order: 'desc'} and move nested import entries closer to the main import entry
     test({
       code: `
-        import b from "foo-bar";
         import d from "foo/barfoo";
         import c from "foo/bar";
+        import b from "foo-bar";
         import a from "foo";
       `,
       options: [{ alphabetize: { order: 'desc' } }],
@@ -708,12 +708,27 @@ ruleTester.run('order', rule, {
     // Option alphabetize: {order: 'desc'} and move nested import entries closer to the main import entry with file names having non-alphanumeric characters.
     test({
       code: `
+        import d from "foo/barfoo";
         import b from "foo-bar";
         import c from "foo,bar";
-        import d from "foo/barfoo";
         import a from "foo";`,
       options: [{
         alphabetize: { order: 'desc' },
+      }],
+    }),
+    // Option alphabetize: {order: 'asc'} and move nested import entries closer to the main import entry
+    test({
+      code: `
+        import a from "foo";
+        import b from "foo-bar";
+        import c from "./bar";
+        import d from "../barfoo";
+        import e from "../../barfoo";
+        import f from "../../../barfoo";
+      `,
+      options: [{
+        alphabetize: { order: 'asc' },
+        groups: ['external', 'index'],
       }],
     }),
     // Option alphabetize with newlines-between: {order: 'asc', newlines-between: 'always'}
@@ -2339,27 +2354,6 @@ ruleTester.run('order', rule, {
         message: '`bar` import should occur before import of `Bar`',
       }],
     }),
-    // Option alphabetize: {order: 'asc'} and move nested import entries closer to the main import entry
-    test({
-      code: `
-        import a from "foo";
-        import b from "foo-bar";
-        import c from "foo/bar";
-        import d from "foo/barfoo";
-      `,
-      options: [{
-        alphabetize: { order: 'asc' },
-      }],
-      output: `
-        import a from "foo";
-        import c from "foo/bar";
-        import d from "foo/barfoo";
-        import b from "foo-bar";
-      `,
-      errors: [{
-        message: '`foo-bar` import should occur after import of `foo/barfoo`',
-      }],
-    }),
     // Option alphabetize {order: 'asc': caseInsensitive: true}
     test({
       code: `
@@ -2551,8 +2545,8 @@ context('TypeScript', function () {
 
               import index from './';
 
-              import type { C } from 'dirA/Bar';
-              import type { A } from 'foo';
+              import type { A } from 'foo1';
+              import type { C } from 'dirA/Bar1';
             `,
             ...parserConfig,
             options: [
@@ -2633,12 +2627,12 @@ context('TypeScript', function () {
           }),
           test({
             code: `
-              import { serialize, parse, mapFieldErrors } from '@vtaits/form-schema';
-              import type { GetFieldSchema } from '@vtaits/form-schema';
               import { useMemo, useCallback } from 'react';
               import type { ReactElement, ReactNode } from 'react';
               import { Form } from 'react-final-form';
               import type { FormProps as FinalFormProps } from 'react-final-form';
+              import { serialize, parse, mapFieldErrors } from '@vtaits/form-schema';
+              import type { GetFieldSchema } from '@vtaits/form-schema';
             `,
             ...parserConfig,
             options: [

@@ -270,21 +270,28 @@ function getSorter(ascending) {
     } else {
       const A = importA.split('/');
       const B = importB.split('/');
-      const a = A.length;
-      const b = B.length;
 
-      for (let i = 0; i < Math.min(a, b); i++) {
-        if (A[i] < B[i]) {
-          result = -1;
-          break;
-        } else if (A[i] > B[i]) {
-          result = 1;
-          break;
+      // 判断路径深度
+      if (A.length !== B.length) {
+        if (A.length === 1 || B.length === 1) {
+          result = A.length < B.length ? -1 : 1;
+        } else {
+          // 比较字符串
+          // https://zh.javascript.info/string#bi-jiao-zi-fu-chuan
+          const a = importA.replace(/\.\.\//g, '}').replace(/\.\//, '~');
+          const b = importB.replace(/\.\.\//g, '}').replace(/\.\//, '~');
+          result = a < b ? -1 : 1;
         }
-      }
-
-      if (!result && a !== b) {
-        result = a < b ? -1 : 1;
+      } else {
+        for (let i = 0; i < A.length; i++) {
+          if (A[i] < B[i]) {
+            result = -1;
+            break;
+          } else if (A[i] > B[i]) {
+            result = 1;
+            break;
+          }
+        }
       }
     }
 
